@@ -1,0 +1,176 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.panels {
+  display: flex;
+  gap: 20px;
+}
+
+.panel {
+  flex: 1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel h2 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-input:focus {
+  border-color: #4a90d9;
+}
+
+.add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.add-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.add-input:focus {
+  border-color: #4a90d9;
+}
+
+.scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 70vh;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 8px;
+  background: #fff;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: #fafafa;
+}
+
+.item-id {
+  flex: 1;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #aaa;
+  font-size: 18px;
+  user-select: none;
+  padding: 0 4px;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.btn {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 10px;
+  transition: background 0.15s;
+}
+
+.btn-select {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.btn-select:hover {
+  background: #c8e6c9;
+}
+
+.btn-deselect {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.btn-deselect:hover {
+  background: #ffcdd2;
+}
+
+.btn-add {
+  background: #e3f2fd;
+  color: #1565c0;
+  white-space: nowrap;
+}
+
+.btn-add:hover {
+  background: #bbdefb;
+}
+
+.sentinel {
+  padding: 12px;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+}
+
+.empty {
+  padding: 24px;
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .panels {
+    flex-direction: column;
+  }
+}
