@@ -3,7 +3,7 @@ import cors from "cors";
 import itemsRouter from "./routes/items.js";
 import selectedRouter from "./routes/selected.js";
 import {initStore} from "./store.js";
-import path from "node:path";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
