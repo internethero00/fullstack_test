@@ -20,7 +20,7 @@ app.get("/api/health", (_req, res) => {
 
 const clientDist = path.join(process.cwd(), "../client/dist");
 app.use(express.static(clientDist));
-app.get("*", (_req, res) => {
+app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(clientDist, "index.html"));
 });
 
