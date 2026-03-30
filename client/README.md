@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React SPA для работы с двумя списками — все элементы и выбранные, с infinite scroll, фильтрацией и drag & drop.
 
-Currently, two official plugins are available:
+## Стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19
+- TypeScript
+- Vite
+- dnd-kit (drag & drop)
 
-## React Compiler
+## Запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+echo "VITE_API_URL=http://localhost:3001" > .env
+npm run dev       # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Скрипты
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Dev-сервер Vite с HMR |
+| `npm run build` | Сборка в `dist/` для продакшна |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Архитектура
+
+### Компоненты
+
 ```
+App.tsx
+├── LeftPanel.tsx       — все элементы + добавление новых
+│   └── InfiniteScroll  — scroll-контейнер
+└── RightPanel.tsx      — выбранные + Drag & Drop
+    ├── InfiniteScroll  — scroll-контейнер
+    └── SortableItem    — перетаскиваемый элемент
+```
+
+### Ключевые модули
+
+**`requestQueue.ts`** — Очередь запросов (синглтон)
+
+Все мутации (select, deselect, add) не отправляются мгновенно, а копятся в `Set` и отправляются батчем:
+- Добавление новых элементов — раз в 10 секунд
+- Select / deselect — раз в 1 секунду
+- `Set` обеспечивает дедупликацию автоматически
+- Противоположные действия (select → deselect одного ID) взаимоуничтожаются
+- После каждого flush вызывается `onFlush` — панели обновляют данные
+
+**`useInfiniteList.ts`** — Хук для бесконечного списка
+
+- Управляет состоянием: items, page, filter, loading, hasMore
+- Debounce фильтра (300ms) — не отправляет запрос на каждую букву
+- `loadingRef` — защита от параллельных запросов
+- `filterRef` — отбрасывает ответы, если фильтр уже изменился
+- `softRefresh` — обновление данных без моргания экрана
+- `removeItem` — optimistic update (мгновенное удаление из UI)
+
+**`api.ts`** — Fetch-обёртки
+
+Тонкий слой над `fetch` для всех эндпоинтов. `BASE` по умолчанию пустой (относительные URL), для локальной разработки задаётся через `VITE_API_URL`.
+
+### UX-решения
+
+- **Optimistic updates.** При нажатии [+] или [−] элемент мгновенно исчезает из текущего списка, не дожидаясь ответа сервера.
+- **Soft refresh.** После flush очереди панели тихо перезагружают данные, не очищая список — без моргания.
+- **Debounce фильтра.** Запрос уходит только когда пользователь перестал печатать на 300ms.
+- **Drag & Drop через dnd-kit.** Перетаскивание только по вертикали, с activation constraint (5px) чтобы не путать клик и перетаскивание.
